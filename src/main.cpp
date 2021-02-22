@@ -9,5 +9,6 @@ int main(int argc, char *argv[]){
   char* file_name = argv[1];
 
   coder = read_file_to_coder(file_name);
+  coder->ComputeHuffmanCode();
   return 0;
 }
