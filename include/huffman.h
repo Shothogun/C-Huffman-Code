@@ -9,7 +9,6 @@
 #include <stack>
 #include <iterator>
 
-
 namespace Huffman
 {
   //! Coder class
@@ -21,7 +20,6 @@ namespace Huffman
     */
   class Coder
   {
-
   private:
     //! Symbol Table
     /*
@@ -39,8 +37,21 @@ namespace Huffman
     //! File string stream
     /*
      * Its the content read from the file
+     * as a bector of bits
     */
-    std::vector<uint8_t> file_content_;
+    std::vector<bool> file_content_;
+
+    //! Encoded data
+    /*
+     * Contains the encoded data bitstream
+    */
+    std::vector<bool> encoded_data_;
+
+    //! Symbol Encode map
+    /*
+     * Maps the symbol to its code
+    */
+    std::map<std::string, std::string> symbol_encode_;
 
   public:
     //! characters counter
@@ -73,7 +84,7 @@ namespace Huffman
     /*
      * Returns buffer content
     */
-    std::vector<uint8_t> GetBuffer();
+    std::vector<bool> GetBuffer();
 
     //! Count Symbol
     /*
@@ -108,6 +119,13 @@ namespace Huffman
      * it in the compressed file.
     */
     void WriteCompressFile();
+
+    //! Encode 
+    /*
+     * Gets the input file buffer file_content_ and encodes it
+     * to the created Huffman Code buffer encoded_data_
+    */
+    void Encode();
   };
 
   //! Decoder class

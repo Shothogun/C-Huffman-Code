@@ -13,13 +13,13 @@ Huffman::Coder *read_file_to_coder(char *file_path)
   std::string line_string;
 
   // File's content
-  std::vector<uint8_t> buffer;
+  std::vector<bool> buffer;
 
-  // Get the bitstream and stores as 
+  // Get the bitstream and stores as
   // a string sequence.
   coder->FillBuffer(file_path);
 
-  // Returns the string sequence 
+  // Returns the string sequence
   // representing the bits from the file
   buffer = coder->GetBuffer();
 
@@ -27,13 +27,15 @@ Huffman::Coder *read_file_to_coder(char *file_path)
   std::string byte_bitstream = "";
 
   // Counts symbols
-  for (uint base = 0; base < buffer.size(); base+=8)
-  { 
+  for (uint base = 0; base < buffer.size(); base += 8)
+  {
     byte_bitstream.clear();
 
     // Reads a byte sequence, represents a character
     for (uint i = 0; i < 8; i++)
-    { byte_bitstream = byte_bitstream + std::to_string(buffer[base+i]);}
+    {
+      byte_bitstream = byte_bitstream + std::to_string(buffer[base + i]);
+    }
 
     coder->CountSymbol(byte_bitstream);
   }
@@ -55,11 +57,19 @@ Huffman::Coder *read_file_to_coder(char *file_path)
       sum += x.second;
     }
 
-    for(auto i :coder->GetBuffer()){
-      std::cout << std::to_string(i);
+    if (coder->GetBuffer().size() > 1000)
+    {
+      std::cout << "WARNING: A TOO LONG BITSTREAM TO PRINT";
     }
-
-    std::cout << std::endl;
+    
+    else
+    {
+      for (auto i : coder->GetBuffer())
+      {
+        std::cout << std::to_string(i);
+      }
+      std::cout << std::endl;
+    }
   }
 
   return coder;

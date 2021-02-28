@@ -10,6 +10,6 @@ int main(int argc, char *argv[]){
 
   coder = read_file_to_coder(file_name);
   coder->ComputeHuffmanCode();
-  coder->WriteCompressFile();
+  coder->Encode();
   return 0;
 }
