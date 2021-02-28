@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../include/huffman.h"
-#include "../include/IO.h"
+#include "../include/io.h"
 
 using namespace std;
 
@@ -10,5 +10,6 @@ int main(int argc, char *argv[]){
 
   coder = read_file_to_coder(file_name);
   coder->ComputeHuffmanCode();
+  coder->WriteCompressFile();
   return 0;
 }

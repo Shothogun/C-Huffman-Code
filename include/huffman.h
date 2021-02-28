@@ -2,10 +2,13 @@
 #define HUFFMAN_HPP
 
 #include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <map>
 #include <vector>
 #include <stack>
+#include <iterator>
+
 
 namespace Huffman
 {
@@ -37,7 +40,7 @@ namespace Huffman
     /*
      * Its the content read from the file
     */
-    std::string file_content_;
+    std::vector<uint8_t> file_content_;
 
   public:
     //! characters counter
@@ -50,7 +53,7 @@ namespace Huffman
     /*
      * Fill the Coder buffer with the file's content
     */
-    void FillBuffer(std::string s);
+    void FillBuffer(std::string file_path);
 
     //! How many Characters
     /*
@@ -59,7 +62,6 @@ namespace Huffman
     */
     int HowManyCharacters();
 
-
     //! Characters quantity
     /*
      * Returns the number of characters from read
@@ -67,12 +69,11 @@ namespace Huffman
     */
     int CharactersQuantity();
 
-
     //! Get buffer
     /*
      * Returns buffer content
     */
-    std::string GetBuffer();
+    std::vector<uint8_t> GetBuffer();
 
     //! Count Symbol
     /*
@@ -94,13 +95,19 @@ namespace Huffman
     */
     void ComputeProbabilityTable();
 
-
     //! Compute Huffman Code
     /*
      * This function computes the Huffman code for a given
      * symbol alphabet and its frequency in a source.
     */
     void ComputeHuffmanCode();
+
+    //! Write Compress File
+    /*
+     * Get the encoded file and writes
+     * it in the compressed file.
+    */
+    void WriteCompressFile();
   };
 
   //! Decoder class

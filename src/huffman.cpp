@@ -1,4 +1,5 @@
 #include "../include/huffman.h"
+#include "../include/bitstream.h"
 #define DEBUG 1
 
 int Huffman::Coder::HowManyCharacters()
@@ -16,12 +17,28 @@ void Huffman::Coder::CountCharacters(int n_characters)
   this->character_counter_ += n_characters;
 }
 
-void Huffman::Coder::FillBuffer(std::string s)
+void Huffman::Coder::FillBuffer(std::string file_path)
 {
-  this->file_content_ += s;
+
+  // Read file as binary data
+  std::ifstream f(file_path, std::ios::binary | std::ios::in);
+  char c;
+
+  // Gets each byte until no more
+  // is left
+  while (f.get(c))
+  {
+    // Gets each bit from the byte
+    for (int i = 7; i >= 0; i--) {
+      this->file_content_.push_back(((c >> i)&1));
+    }
+
+    // Each byte is a character
+    this->CountCharacters(1);
+  }
 }
 
-std::string Huffman::Coder::GetBuffer()
+std::vector<uint8_t> Huffman::Coder::GetBuffer()
 {
   return this->file_content_;
 }
@@ -103,8 +120,8 @@ void Huffman::Coder::ComputeHuffmanCode()
   // the code pattern
   auto it = symbol_vector.begin();
   auto next = symbol_vector.begin() + 1;
-  code_map[it->second]="1";
-  code_map[next->second]="0";
+  code_map[it->second] = "1";
+  code_map[next->second] = "0";
 
   std::reverse(father.begin(), father.end());
   std::reverse(combined_pairs.begin(), combined_pairs.end());
@@ -114,14 +131,14 @@ void Huffman::Coder::ComputeHuffmanCode()
   for (auto p : combined_pairs)
   {
     std::string code = code_map[*current_father];
-    code_map[p.first] = code+"1";
-    code_map[p.second] = code+"0";
+    code_map[p.first] = code + "1";
+    code_map[p.second] = code + "0";
     current_father++;
   }
 
   if (DEBUG)
   {
-    std::cout << "Combined Pair\n";
+    std::cout << "Combined Pair\n\n";
 
     for (auto it : combined_pairs)
     {
@@ -131,7 +148,7 @@ void Huffman::Coder::ComputeHuffmanCode()
                 << std::endl;
     }
 
-    std::cout << "Father\n";
+    std::cout << "Father\n\n";
 
     for (auto it : father)
     {
@@ -139,7 +156,7 @@ void Huffman::Coder::ComputeHuffmanCode()
                 << std::endl;
     }
 
-    std::cout << "Code Map\n";
+    std::cout << "Code Map\n\n";
 
     for (auto const &x : code_map)
     {
