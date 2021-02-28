@@ -2,7 +2,7 @@
 #include "../include/io.h"
 #include "../include/bitstream.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 Huffman::Coder *read_file_to_coder(char *file_path)
 {
@@ -61,7 +61,7 @@ Huffman::Coder *read_file_to_coder(char *file_path)
     {
       std::cout << "WARNING: A TOO LONG BITSTREAM TO PRINT";
     }
-    
+
     else
     {
       for (auto i : coder->GetBuffer())

@@ -120,12 +120,20 @@ namespace Huffman
     */
     void WriteCompressFile();
 
-    //! Encode 
+    //! Encode function
     /*
      * Gets the input file buffer file_content_ and encodes it
      * to the created Huffman Code buffer encoded_data_
     */
     void Encode();
+
+    //! Compress to File functino
+    /*
+     * Writes the encoded_data_ to a 
+     * compressed file, .huff
+    */
+    void CompressToFile(std::string file_name);
+
   };
 
   //! Decoder class

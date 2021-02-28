@@ -1,6 +1,6 @@
 #include "../include/huffman.h"
 #include "../include/bitstream.h"
-#define DEBUG 0
+#define DEBUG 1
 
 int Huffman::Coder::HowManyCharacters()
 {
@@ -142,7 +142,13 @@ void Huffman::Coder::ComputeHuffmanCode()
     current_father++;
   }
 
-  this->symbol_encode_ = code_map;
+  for (auto p : code_map)
+  {
+    if (p.first[0] == '0' || p.first[0] == '1')
+    {
+      this->symbol_encode_[p.first] = p.second;
+    }
+  }
 
   if (DEBUG)
   {
@@ -214,7 +220,8 @@ void Huffman::Coder::Encode()
 
     else
     {
-      std::cout << "Original bitstream" << "\n";
+      std::cout << "Original bitstream"
+                << "\n";
 
       for (auto x : this->file_content_)
       {
@@ -222,7 +229,8 @@ void Huffman::Coder::Encode()
       }
       std::cout << "\n";
 
-      std::cout << "Encoded bitstream" << "\n";
+      std::cout << "Encoded bitstream"
+                << "\n";
 
       for (auto x : this->encoded_data_)
       {
@@ -230,6 +238,18 @@ void Huffman::Coder::Encode()
       }
       std::cout << "\n\n";
     }
+
+    for (auto const &x : this->symbol_encode_)
+    {
+      std::cout << x.first
+                << ':'
+                << x.second
+                << std::endl;
+    }
+
+    std::cout << "Symbols number:\t\t"
+              << this->symbol_encode_.size()
+              << '\n';
   }
 
   std::cout << "Compression rate:\t";
@@ -245,6 +265,53 @@ void Huffman::Coder::Encode()
             << "\n";
 }
 
-void Huffman::Coder::WriteCompressFile()
+void Huffman::Coder::CompressToFile(std::string file_name)
 {
+  // 2 Bytes: symbols number
+  // tuples: array of tuples [a size code]
+  // a    -> 1 Byte:  symbol
+  // size -> 1 Byte:  encode size
+  // code -> n Bytes: symbol encode
+
+  // Empty Bitstream object
+  Bitstream bstream;
+
+  // Inserts symbols number as bits
+  for (int i = 0; i < 16; i++)
+  {
+    bstream.writeBit((this->symbol_encode_.size() >> (15 - i)) & 1);
+  }
+
+  std::string bit;
+
+  // Inserts array of tuples as bits
+  for (auto p : this->symbol_encode_)
+  {
+    // Inserts Symbol
+    for (int i = 0; i < 8; i++)
+    {
+      bit = p.first[i];
+      bstream.writeBit(stoi(bit));
+    }
+
+    // Inserts encode size
+    for (int i = 0; i < 8; i++)
+    {
+      bstream.writeBit((p.second.size() >> (7 - i)) & 1);
+    }
+
+    // Inserts symbol encode
+    for (int i = 0; i < p.second.size(); i++)
+    {
+      bit = p.second[i];
+      bstream.writeBit(stoi(bit));
+    }
+  }
+
+  for (int i = 0; i < this->encoded_data_.size(); i++)
+  {
+    bstream.writeBit(this->encoded_data_[i]);
+  }
+
+  bstream.flushesToFile(file_name);
 }
