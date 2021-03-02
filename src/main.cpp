@@ -5,13 +5,20 @@
 using namespace std;
 
 int main(int argc, char *argv[]){
-  Huffman::Coder* coder;
+  Huffman::Encoder* encoder;
+  Huffman::Decoder* decoder = new Huffman::Decoder();
   char* file_name = argv[1];
   std::string out_file = "out.huff";
 
-  coder = read_file_to_coder(file_name);
-  coder->ComputeHuffmanCode();
-  coder->Encode();
-  coder->CompressToFile(out_file);
+  // Enconding
+  encoder = read_file_to_coder(file_name);
+  encoder->ComputeHuffmanCode();
+  encoder->Encode();
+  encoder->CompressToFile(out_file);
+
+  // Decoding
+  decoder->DecompressFromFile(out_file);
+  decoder->Decode();
+
   return 0;
 }

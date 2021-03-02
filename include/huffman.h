@@ -18,7 +18,7 @@ namespace Huffman
     * Class dedicated to convert text file to create
     * the Huffman Coding compression
     */
-  class Coder
+  class Encoder
   {
   private:
     //! Symbol Table
@@ -117,6 +117,14 @@ namespace Huffman
     /*
      * Get the encoded file and writes
      * it in the compressed file.
+     * Pattern:
+     * - Header:
+     *    2 Bytes: symbols number
+     *    tuples: array of tuples [a size code]
+     *    a    -> 1 Byte:  symbol
+     *    size -> 1 Byte:  encode size
+     *    code -> n Bytes: symbol encode
+     * - Content: bitstream
     */
     void WriteCompressFile();
 
@@ -127,13 +135,12 @@ namespace Huffman
     */
     void Encode();
 
-    //! Compress to File functino
+    //! Compress to File function
     /*
      * Writes the encoded_data_ to a 
      * compressed file, .huff
     */
     void CompressToFile(std::string file_name);
-
   };
 
   //! Decoder class
@@ -146,6 +153,27 @@ namespace Huffman
   class Decoder
   {
   private:
+    //! Encoded Content Buffer
+    /*
+     * .huff file's bits content buffer
+    */
+    std::vector<bool> encoded_content_buffer_;
+
+  public:
+    //! Decompress from File function
+    /*
+     * Read the data from .huff file
+     * to encoded_content_buffer_ vector
+    */
+    void DecompressFromFile(std::string file_name);
+
+    //! Decode 
+    /*
+     * Gets the encoded_content_buffer_ bits and 
+     * decodes it to its original content decompressed
+    */
+    void Decode();
+
   };
 } // namespace Huffman
 

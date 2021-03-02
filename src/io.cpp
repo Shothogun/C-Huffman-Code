@@ -2,14 +2,14 @@
 #include "../include/io.h"
 #include "../include/bitstream.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
-Huffman::Coder *read_file_to_coder(char *file_path)
+Huffman::Encoder *read_file_to_coder(char *file_path)
 {
-  // Coder object
-  Huffman::Coder *coder = new Huffman::Coder();
+  // encoder object
+  Huffman::Encoder *encoder = new Huffman::Encoder();
 
-  // String that populates the coder buffer
+  // String that populates the encoder buffer
   std::string line_string;
 
   // File's content
@@ -17,11 +17,11 @@ Huffman::Coder *read_file_to_coder(char *file_path)
 
   // Get the bitstream and stores as
   // a string sequence.
-  coder->FillBuffer(file_path);
+  encoder->FillBuffer(file_path);
 
   // Returns the string sequence
   // representing the bits from the file
-  buffer = coder->GetBuffer();
+  buffer = encoder->GetBuffer();
 
   // A byte bitstream as a string
   std::string byte_bitstream = "";
@@ -37,17 +37,21 @@ Huffman::Coder *read_file_to_coder(char *file_path)
       byte_bitstream = byte_bitstream + std::to_string(buffer[base + i]);
     }
 
-    coder->CountSymbol(byte_bitstream);
+    encoder->CountSymbol(byte_bitstream);
   }
 
-  coder->ComputeProbabilityTable();
+  encoder->ComputeProbabilityTable();
 
   double sum = 0;
 
   if (DEBUG)
   {
+    std::cout << "-----------------------------\n"
+              << "-- Symbol Probabilities -----\n"
+              << "-----------------------------\n";
+
     // As bytes
-    for (auto const &x : coder->GetSymbolTable())
+    for (auto const &x : encoder->GetSymbolTable())
     {
       std::cout << x.first
                 << ':'
@@ -57,20 +61,25 @@ Huffman::Coder *read_file_to_coder(char *file_path)
       sum += x.second;
     }
 
-    if (coder->GetBuffer().size() > 1000)
+    std::cout << "\n";
+
+    if (encoder->GetBuffer().size() > 1000)
     {
       std::cout << "WARNING: A TOO LONG BITSTREAM TO PRINT";
     }
 
     else
     {
-      for (auto i : coder->GetBuffer())
+      std::cout << "-----------------------------\n"
+                << "-- Input file bits ----------\n"
+                << "-----------------------------\n";
+      for (auto i : encoder->GetBuffer())
       {
         std::cout << std::to_string(i);
       }
-      std::cout << std::endl;
+      std::cout << "\n\n";
     }
   }
 
-  return coder;
+  return encoder;
 }

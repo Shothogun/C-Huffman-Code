@@ -1,23 +1,24 @@
 #include "../include/huffman.h"
 #include "../include/bitstream.h"
-#define DEBUG 1
+#define DEBUG 0
+#define DECODE_DEBUG 1
 
-int Huffman::Coder::HowManyCharacters()
+int Huffman::Encoder::HowManyCharacters()
 {
   return this->character_counter_;
 }
 
-int Huffman::Coder::CharactersQuantity()
+int Huffman::Encoder::CharactersQuantity()
 {
   return this->character_counter_;
 }
 
-void Huffman::Coder::CountCharacters(int n_characters)
+void Huffman::Encoder::CountCharacters(int n_characters)
 {
   this->character_counter_ += n_characters;
 }
 
-void Huffman::Coder::FillBuffer(std::string file_path)
+void Huffman::Encoder::FillBuffer(std::string file_path)
 {
 
   // Read file as binary data
@@ -44,22 +45,22 @@ void Huffman::Coder::FillBuffer(std::string file_path)
   }
 }
 
-std::vector<bool> Huffman::Coder::GetBuffer()
+std::vector<bool> Huffman::Encoder::GetBuffer()
 {
   return this->file_content_;
 }
 
-void Huffman::Coder::CountSymbol(std::string character)
+void Huffman::Encoder::CountSymbol(std::string character)
 {
   this->symbol_table_[character]++;
 }
 
-std::map<std::string, double> Huffman::Coder::GetSymbolTable()
+std::map<std::string, double> Huffman::Encoder::GetSymbolTable()
 {
   return this->symbol_table_;
 }
 
-void Huffman::Coder::ComputeProbabilityTable()
+void Huffman::Encoder::ComputeProbabilityTable()
 {
   for (auto &x : this->GetSymbolTable())
   {
@@ -67,7 +68,7 @@ void Huffman::Coder::ComputeProbabilityTable()
   }
 }
 
-void Huffman::Coder::ComputeHuffmanCode()
+void Huffman::Encoder::ComputeHuffmanCode()
 {
   // Vector of pair probability and symbol
   std::vector<std::pair<double, std::string>> symbol_vector;
@@ -77,7 +78,7 @@ void Huffman::Coder::ComputeHuffmanCode()
   std::vector<std::pair<std::string, std::string>> combined_pairs;
 
   // Stores the father node of the tree generated,
-  // determines the childer code appending 0 or 1
+  // determines its child's code appending 0 or 1
   std::vector<std::string> father;
 
   // Maps the symbol to its code
@@ -152,7 +153,9 @@ void Huffman::Coder::ComputeHuffmanCode()
 
   if (DEBUG)
   {
-    std::cout << "Combined Pair\n\n";
+    std::cout << "-----------------------------\n"
+              << "------ Combined Pair --------\n"
+              << "-----------------------------\n";
 
     for (auto it : combined_pairs)
     {
@@ -162,7 +165,11 @@ void Huffman::Coder::ComputeHuffmanCode()
                 << "\n";
     }
 
-    std::cout << "Father\n\n";
+    std::cout << "\n";
+
+    std::cout << "-----------------------------\n"
+              << "---------- Father -----------\n"
+              << "-----------------------------\n";
 
     for (auto it : father)
     {
@@ -170,7 +177,11 @@ void Huffman::Coder::ComputeHuffmanCode()
                 << "\n";
     }
 
-    std::cout << "Code Map\n\n";
+    std::cout << "\n";
+
+    std::cout << "-----------------------------\n"
+              << "---------- Code Map ---------\n"
+              << "-----------------------------\n";
 
     for (auto const &x : code_map)
     {
@@ -179,10 +190,12 @@ void Huffman::Coder::ComputeHuffmanCode()
                 << x.second
                 << "\n";
     }
+
+    std::cout << "\n";
   }
 }
 
-void Huffman::Coder::Encode()
+void Huffman::Encoder::Encode()
 {
   std::string byte_bitstream = "";
   std::string encoded_symbol = "";
@@ -220,17 +233,19 @@ void Huffman::Coder::Encode()
 
     else
     {
-      std::cout << "Original bitstream"
-                << "\n";
+      std::cout << "-----------------------------\n"
+                << "---- Original bitstream -----\n"
+                << "-----------------------------\n";
 
       for (auto x : this->file_content_)
       {
         std::cout << to_string(x);
       }
-      std::cout << "\n";
+      std::cout << "\n\n";
 
-      std::cout << "Encoded bitstream"
-                << "\n";
+      std::cout << "-----------------------------\n"
+                << "---- Encoded bitstream ------\n"
+                << "-----------------------------\n";
 
       for (auto x : this->encoded_data_)
       {
@@ -238,6 +253,10 @@ void Huffman::Coder::Encode()
       }
       std::cout << "\n\n";
     }
+
+    std::cout << "-----------------------------\n"
+              << "------- Symbol Encode -------\n"
+              << "-----------------------------\n";
 
     for (auto const &x : this->symbol_encode_)
     {
@@ -247,12 +266,14 @@ void Huffman::Coder::Encode()
                 << std::endl;
     }
 
-    std::cout << "Symbols number:\t\t"
-              << this->symbol_encode_.size()
-              << '\n';
-  }
+    std::cout << "\n";
 
-  std::cout << "Compression rate:\t";
+    std::cout << "-----------------------------\n"
+              << "- Symbols number: "
+              << this->symbol_encode_.size()
+              << "\n"
+              << "-----------------------------\n\n";
+  }
 
   double compression_rate = 1;
   compression_rate -= (double)this->encoded_data_.size() /
@@ -260,12 +281,14 @@ void Huffman::Coder::Encode()
 
   compression_rate *= 100;
 
-  std::cout << compression_rate
-            << "%"
-            << "\n";
+  std::cout
+      << "- Brute Compression rate: "
+      << compression_rate
+      << "%\n"
+      << "\n";
 }
 
-void Huffman::Coder::CompressToFile(std::string file_name)
+void Huffman::Encoder::CompressToFile(std::string file_name)
 {
   // 2 Bytes: symbols number
   // tuples: array of tuples [a size code]
@@ -275,11 +298,13 @@ void Huffman::Coder::CompressToFile(std::string file_name)
 
   // Empty Bitstream object
   Bitstream bstream;
+  std::vector<bool> bstream_vector;
 
   // Inserts symbols number as bits
   for (int i = 0; i < 16; i++)
   {
     bstream.writeBit((this->symbol_encode_.size() >> (15 - i)) & 1);
+    bstream_vector.push_back((this->symbol_encode_.size() >> (15 - i)) & 1);
   }
 
   std::string bit;
@@ -292,26 +317,166 @@ void Huffman::Coder::CompressToFile(std::string file_name)
     {
       bit = p.first[i];
       bstream.writeBit(stoi(bit));
+      bstream_vector.push_back(stoi(bit));
     }
 
     // Inserts encode size
-    for (int i = 0; i < 8; i++)
+    for (uint i = 0; i < 8; i++)
     {
       bstream.writeBit((p.second.size() >> (7 - i)) & 1);
+      bstream_vector.push_back((p.second.size() >> (7 - i)) & 1);
     }
 
     // Inserts symbol encode
-    for (int i = 0; i < p.second.size(); i++)
+    for (uint i = 0; i < p.second.size(); i++)
     {
       bit = p.second[i];
       bstream.writeBit(stoi(bit));
+      bstream_vector.push_back(stoi(bit));
     }
   }
 
-  for (int i = 0; i < this->encoded_data_.size(); i++)
+  // Inserts the encoded data
+  for (uint i = 0; i < this->encoded_data_.size(); i++)
   {
     bstream.writeBit(this->encoded_data_[i]);
+    bstream_vector.push_back(this->encoded_data_[i]);
   }
 
   bstream.flushesToFile(file_name);
+
+  if (DEBUG)
+  {
+    std::cout << "-----------------------------\n"
+              << "------- Encoded data --------\n"
+              << "-----------------------------\n";
+
+    for (auto x : bstream_vector)
+    {
+      std::cout << to_string(x);
+    }
+    std::cout << "\n\n";
+  }
+  double compression_rate = 1;
+  compression_rate -= (double)bstream_vector.size() /
+                      (double)this->file_content_.size();
+
+  compression_rate *= 100;
+  std::cout
+      << "- Liquid Compression rate: "
+      << compression_rate
+      << "%\n"
+      << "\n";
+}
+
+void Huffman::Decoder::DecompressFromFile(std::string file_name)
+{
+  // Empty Bitstream object
+  Bitstream bstream = Bitstream(file_name);
+  bool bit;
+
+  // Inserts file content in decoder buffer
+  while (bstream.hasBits())
+  {
+    bit = bstream.readBit();
+    this->encoded_content_buffer_.push_back(bit);
+  }
+
+  if (DEBUG)
+  {
+    std::cout << "-----------------------------\n"
+              << "-- Buffer Read from .huff ---\n"
+              << "-----------------------------\n";
+    for (auto x : this->encoded_content_buffer_)
+    {
+      std::cout << to_string(x);
+    }
+    std::cout << "\n\n";
+  }
+}
+
+void Huffman::Decoder::Decode()
+{
+  // How many symbols are in the header
+  int n_symbols = 0;
+
+  // Current bit set to read
+  // in the encoded_content_buffer
+  int current_bit = 0;
+
+  // Symbol read from the header
+  std::string symbol;
+
+  // Size read from header
+  int symbol_size = 0;
+
+  // Encode read from the header
+  std::string encode;
+
+  // Encode read from the header
+  std::map<std::string, std::string> code_to_symbol;
+
+  // Gets the number of symbols
+  // contained in the header
+  for (int i = 0; i < 16; i++)
+  {
+    // Converts the 2 byte binary
+    // n_symbols form to a decimal count
+    n_symbols |= ((this->encoded_content_buffer_[current_bit]) << (15 - i));
+    current_bit++;
+  }
+
+  // Parses header to an map
+  // of code to original symbol, for each symbol
+  while (n_symbols--)
+  {
+    symbol.clear();
+    encode.clear();
+    symbol_size = 0;
+
+    // Read symbol
+    for (int i = 0; i < 8; i++)
+    {
+      symbol = symbol +
+               std::to_string(this->encoded_content_buffer_[current_bit]);
+      current_bit++;
+    }
+
+    // Read size
+    for (int i = 0; i < 8; i++)
+    {
+      // Converts the 2 byte binary
+      // symbol size form to a decimal count
+      symbol_size |= ((this->encoded_content_buffer_[current_bit]) << (7 - i));
+      current_bit++;
+    }
+
+    // Read code
+    for (int i = 0; i < symbol_size; i++)
+    {
+      encode = encode +
+               std::to_string(this->encoded_content_buffer_[current_bit]);
+      current_bit++;
+    }
+
+    code_to_symbol[encode] = symbol;
+  }
+
+  if (DECODE_DEBUG)
+  {
+    std::cout << "Symbols Number: "
+              << n_symbols << "\n";
+
+    std::cout << "-----------------------------\n"
+              << "------- Code to Symbol ------\n"
+              << "-----------------------------\n";
+
+    for (auto const &x : code_to_symbol)
+    {
+      std::cout << x.first
+                << ':'
+                << x.second
+                << std::endl;
+    }
+  }
 }
