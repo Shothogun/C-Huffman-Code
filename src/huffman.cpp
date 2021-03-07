@@ -1,7 +1,7 @@
 #include "../include/huffman.h"
 #include "../include/bitstream.h"
 #define DEBUG 0
-#define DECODE_DEBUG 1
+#define DECODE_DEBUG 0
 
 int Huffman::Encoder::HowManyCharacters()
 {
@@ -275,6 +275,26 @@ void Huffman::Encoder::Encode()
               << "-----------------------------\n\n";
   }
 
+  // Bits per symbol in new encoding
+  double average_rate = 0;
+
+  for (auto const &x : this->GetSymbolTable())
+  {
+    average_rate += (this->symbol_encode_[x.first].size()) * x.second;
+  }
+
+  this->average_rate_ = average_rate;
+
+  std::cout
+      << "Average size:\t"
+      << average_rate
+      << " bits/symbol\n";
+
+  std::cout
+      << "Difference:\t"
+      << (this->average_rate_ - this->entropy_) 
+      << " bits/symbol\n";
+
   double compression_rate = 1;
   compression_rate -= (double)this->encoded_data_.size() /
                       (double)this->file_content_.size();
@@ -282,10 +302,9 @@ void Huffman::Encoder::Encode()
   compression_rate *= 100;
 
   std::cout
-      << "- Brute Compression rate: "
+      << "Liquid Compression rate: "
       << compression_rate
-      << "%\n"
-      << "\n";
+      << "%\n";
 }
 
 void Huffman::Encoder::CompressToFile(std::string file_name)
@@ -363,10 +382,9 @@ void Huffman::Encoder::CompressToFile(std::string file_name)
 
   compression_rate *= 100;
   std::cout
-      << "- Liquid Compression rate: "
+      << "Brute Compression rate: "
       << compression_rate
-      << "%\n"
-      << "\n";
+      << "%\n";
 }
 
 void Huffman::Decoder::DecompressFromFile(std::string file_name)
@@ -462,6 +480,9 @@ void Huffman::Decoder::Decode()
     code_to_symbol[encode] = symbol;
   }
 
+  this->current_bit_ = current_bit;
+  this->code_to_symbol_ = code_to_symbol;
+
   if (DECODE_DEBUG)
   {
     std::cout << "Symbols Number: "
@@ -479,4 +500,67 @@ void Huffman::Decoder::Decode()
                 << std::endl;
     }
   }
+}
+
+void Huffman::Decoder::DecompressHuffmanCode()
+{
+  // Express the current code expression
+  // read from then compressed file
+  std::string code = "";
+
+  // Bit read from the compressed file
+  std::string bit = "";
+
+  // Single bit read from the file
+  std::string read_from_file = "";
+
+  std::map<std::string, std::string>::iterator it = this->code_to_symbol_.end();
+
+  while (this->current_bit_ <
+         this->encoded_content_buffer_.size())
+  {
+    read_from_file = std::to_string(this->encoded_content_buffer_[this->current_bit_]);
+    code = code + read_from_file;
+
+    // Theres a corresponding code read from the
+    // compressed file?
+    if ((it = this->code_to_symbol_.find(code)) != this->code_to_symbol_.end())
+    {
+      for (auto character : it->second)
+      {
+        bit = character;
+        this->decompressed_content_buffer.push_back(stoi(bit));
+      }
+      code.clear();
+    }
+
+    this->current_bit_++;
+  }
+
+  if (DECODE_DEBUG)
+  {
+    std::cout << "-----------------------------\n"
+              << "----- Decompressed content --\n"
+              << "-----------------------------\n";
+    for (auto bit : this->decompressed_content_buffer)
+    {
+      std::cout << bit;
+    }
+    std::cout << "\n";
+  }
+}
+
+void Huffman::Decoder::DecompressToFile(std::string file_name)
+{
+
+  // Empty Bitstream object
+  Bitstream bstream;
+
+  for (auto bit : this->decompressed_content_buffer)
+  {
+    bstream.writeBit(bit);
+  }
+
+  //Grava o bitstream no arquivo.
+  bstream.flushesToDecompressedFile(file_name);
 }

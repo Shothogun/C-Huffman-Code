@@ -2,3 +2,5 @@
 obj/
 ArquivosParaComprimir/
 huffman
+decompressed
+*.huff

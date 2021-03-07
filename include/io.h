@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <cmath>
 #include "huffman.h"
 
 // Receives file title and returns Coder object

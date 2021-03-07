@@ -57,6 +57,8 @@ public:
 
 	void flushesToFile(std::string filename);
 
+	void flushesToDecompressedFile(std::string filename);
+
 	bool readBit();
 
 };

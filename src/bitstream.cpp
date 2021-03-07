@@ -309,6 +309,40 @@ void Bitstream::flushesToFile(std::string filename)
 	}
 }
 
+void Bitstream::flushesToDecompressedFile(std::string filename)
+{
+	std::ofstream file;
+
+	file.open(filename,std::ios::out | std::ios::binary | std::ios::trunc);
+
+	if (file.is_open())
+	{
+		//Writes the data that is already packed to 8 bits.
+		file.write(reinterpret_cast<char*>(&data[0]), data.size() * sizeof(data[0]));
+		
+		if (num_buf8 > 0)
+		{
+			//Computes and writes the last byte.
+			uint8_t last_byte = buf8;
+			uint8_t i = 8 - num_buf8;
+			while (i != 0)
+			{
+				last_byte <<= 1;
+				i--;
+			}
+
+			file.write(reinterpret_cast<char*>(&last_byte), sizeof(last_byte));
+		}
+
+		file.close();
+	} 
+	else
+	{
+		//BIG BUG! EXCEPTION! DESTROY!
+		std::cout << "DEU RUIM NO ARQUIVO." << std::endl;
+	}
+}
+
 bool Bitstream::readBit()
 {
 	//assert(mode == READ); ?

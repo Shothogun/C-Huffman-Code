@@ -42,8 +42,21 @@ Huffman::Encoder *read_file_to_coder(char *file_path)
 
   encoder->ComputeProbabilityTable();
 
-  double sum = 0;
+  double entropy = 0;
 
+  // Entropy computation
+  for (auto const &x : encoder->GetSymbolTable())
+  {
+    entropy += -(x.second * log2(x.second));
+  }
+
+  encoder->entropy_ = entropy;
+
+  std::cout << "Entropy:\t"
+            << entropy
+            << " bits/symbol\n";
+
+  double sum = 0;
   if (DEBUG)
   {
     std::cout << "-----------------------------\n"

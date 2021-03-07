@@ -54,6 +54,13 @@ namespace Huffman
     std::map<std::string, std::string> symbol_encode_;
 
   public:
+    //! Log values to print
+    /*
+     * Entropy and average bits per symbol rate
+    */
+    double entropy_;
+    double average_rate_;
+
     //! characters counter
     /*
      * Increases n_characters on the character_counter variable.
@@ -153,13 +160,40 @@ namespace Huffman
   class Decoder
   {
   private:
+    //! Current Bit
+    /*
+     * Express the current bit 
+     * read from the compressed file
+    */
+    int current_bit_;
+
     //! Encoded Content Buffer
     /*
      * .huff file's bits content buffer
     */
     std::vector<bool> encoded_content_buffer_;
 
+    //! Decompressed file buffer
+    /*
+     * Out decompressed file buffer
+    */
+    std::vector<bool> decompressed_content_buffer;
+
+    //! Code to symbol
+    /*
+     * In: Code Out: Original Symbol
+    */
+    std::map<std::string, std::string> code_to_symbol_;
+
   public:
+    //! Decompress to File function
+    /*
+     * Get the coded file content(encoded_content_buffer_)
+     * and translates it to the original decompressed 
+     * decompressed_content_buffer
+    */
+    void DecompressHuffmanCode();
+
     //! Decompress from File function
     /*
      * Read the data from .huff file
@@ -167,13 +201,26 @@ namespace Huffman
     */
     void DecompressFromFile(std::string file_name);
 
-    //! Decode 
+    //! Decompress to File function
+    /* 
+     * Writes the decompressed_content_buffer 
+     * to a output file 
+    */
+    void DecompressToFile(std::string file_name);
+
+    //! Decompress from File function
+    /*
+     * Read the data from .huff file
+     * to encoded_content_buffer_ vector
+    */
+    void Decompress(std::string file_name);
+
+    //! Decode
     /*
      * Gets the encoded_content_buffer_ bits and 
      * decodes it to its original content decompressed
     */
     void Decode();
-
   };
 } // namespace Huffman
 
