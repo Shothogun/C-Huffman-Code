@@ -37,7 +37,7 @@ namespace Huffman
     //! File string stream
     /*
      * Its the content read from the file
-     * as a bector of bits
+     * as a vector of bits
     */
     std::vector<bool> file_content_;
 

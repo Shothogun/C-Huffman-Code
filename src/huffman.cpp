@@ -292,7 +292,7 @@ void Huffman::Encoder::Encode()
 
   std::cout
       << "Difference:\t"
-      << (this->average_rate_ - this->entropy_) 
+      << (this->average_rate_ - this->entropy_)
       << " bits/symbol\n";
 
   double compression_rate = 1;
@@ -300,6 +300,16 @@ void Huffman::Encoder::Encode()
                       (double)this->file_content_.size();
 
   compression_rate *= 100;
+
+  std::cout
+      << "Original file size:\t\t\t"
+      << this->file_content_.size()/8
+      << " bytes\n";
+
+  std::cout
+      << "Compressed file size without overhead:\t"
+      << this->encoded_data_.size() / 8
+      << " bytes\n";
 
   std::cout
       << "Liquid Compression rate: "
@@ -376,6 +386,12 @@ void Huffman::Encoder::CompressToFile(std::string file_name)
     }
     std::cout << "\n\n";
   }
+
+  std::cout
+      << "Compressed file size with overhead:\t"
+      << bstream_vector.size() / 8
+      << " bytes\n";
+
   double compression_rate = 1;
   compression_rate -= (double)bstream_vector.size() /
                       (double)this->file_content_.size();
